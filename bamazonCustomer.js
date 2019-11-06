@@ -17,17 +17,28 @@ var connection = mysql.createConnection({
 });
 
 connection.connect(function(err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    readProducts()
+  if (err) throw err;
+  // run the start function after the connection is made to prompt the user
+  start();
 });
-
-function readProducts() {
-    console.log("Selecting all products...\n");
-    connection.query("SELECT * FROM products", function(err, res) {
-      if (err) throw err;
-      // Log all results of the SELECT statement
-      console.log(res);
-      connection.end();
+// function which prompts the user for what action they should take
+function start() {
+  inquirer
+    .prompt({
+      name: "idAndQuantity",
+      type: "list",
+      message: "What item [ID] and [QUANTITY] would you like?",
+      choices: ["ID", "QUANTITY", "EXIT"]
+    })
+    .then(function(answer) {
+      // based on their answer, either call the bid or the post functions
+      if (answer.idAndQuantity === "POST") {
+        idAuction();
+      }
+      else if(answer.idAndQuantity === "BID") {
+        quantityAuction();
+      } else{
+        connection.end();
+      }
     });
 }
